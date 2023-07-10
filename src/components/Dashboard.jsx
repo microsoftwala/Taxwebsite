@@ -1,7 +1,10 @@
 import React, { useState,useEffect } from 'react'
-import "./Home.css"
-import {  NavLink, Navigate } from "react-router-dom";
+import "../style/Home.css"
+import date from 'date-and-time';
+import {  NavLink, Navigate, useLocation } from "react-router-dom";
 import GridViewRoundedIcon from '@mui/icons-material/GridViewRounded';
+import HistoryIcon from '@mui/icons-material/History';
+import { registerLicense } from '@syncfusion/ej2-base';
 import { useNavigate } from "react-router-dom";
 import QuestionMarkSharpIcon from '@mui/icons-material/QuestionMarkSharp';
 import NotificationsSharpIcon from '@mui/icons-material/NotificationsSharp';
@@ -13,19 +16,18 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
-import { BarSeries, Category, ChartComponent,DataLabel,Inject,Legend,LineSeries, SeriesCollectionDirective, SeriesDirective } from '@syncfusion/ej2-react-charts';
-import { taxData } from './taxData';
+import { BarSeries, Category, ChartComponent,DataLabel,Inject, SeriesCollectionDirective, SeriesDirective } from '@syncfusion/ej2-react-charts';
 import CloseIcon from '@mui/icons-material/Close';
 
-
+registerLicense('Ngo9BigBOggjHTQxAR8/V1NGaF5cXmVCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdgWXlceXRQR2hdUkR0WEs=');
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
     borderRadius: theme.shape.borderRadius,
@@ -72,7 +74,22 @@ const Dashboard = (props) => {
 
 const [authenticated, setauthenticated] = useState(null);
 
+const now  =  new Date();
+const year = date.format(now,'YYYY')
+const month = date.format(now,'MM')
+const dates = date.format(now,"DD")
+
 const [bar,setBar] = useState(true)
+const [expenses,setExpenses] = useState([])
+
+useEffect(() => 
+{
+ axios.get("/payment").then((response)=>{
+  setExpenses(response.data)
+})
+.catch(error => {
+  console.log("error"+error)})
+}, [])
 
 const Closebar = ()=>{
   if(bar === false){
@@ -90,35 +107,94 @@ const Closebar = ()=>{
         }, []);
       
 const [name,setName] = useState([])
- axios.get('/login')
-.then((response) => {
-    setName(response.data)})
-.catch((error) => console.log(error))
+useEffect(() => {
+  axios
+    .get('/login')
+    .then((response) => {
+      setName(response.data);
+    })
+    .catch((error) => console.log('error', error));
+}, []);
 
-// console.log(taxData)
-
+// const location = useLocation()
 
 const navigate = useNavigate();
-// console.log(typeof(localStorage.getItem("authenticated")))
 if (localStorage.getItem("authenticated") === 'false') 
 {
-    console.log("hello")
     return <Navigate replace to="/Signin" />;
 } 
 
 else {
-        
+  const expenditureData = expenses.filter(entry => entry.type === 'Expenditure');
+
+  const totalExpenditure = expenditureData.reduce((sum, entry) => sum + entry.amount, 0);
+  
+  const jan = expenses.filter(entry => entry.type === 'Expenditure' && entry.month === "01");
+  const feb = expenses.filter(entry => entry.type === 'Expenditure' && entry.month === "02");
+  const mar = expenses.filter(entry => entry.type === 'Expenditure' && entry.month === "03");
+  const apr = expenses.filter(entry => entry.type === 'Expenditure' && entry.month === "04");
+  const may = expenses.filter(entry => entry.type === 'Expenditure' && entry.month === "05");
+  const jun = expenses.filter(entry => entry.type === 'Expenditure' && entry.month === "06");
+  const jul = expenses.filter(entry => entry.type === 'Expenditure' && entry.month === "07");
+  const aug = expenses.filter(entry => entry.type === 'Expenditure' && entry.month === "08");
+  const sep = expenses.filter(entry => entry.type === 'Expenditure' && entry.month === "09");
+  const oct = expenses.filter(entry => entry.type === 'Expenditure' && entry.month === "10");
+  const nov = expenses.filter(entry => entry.type === 'Expenditure' && entry.month === "11");
+  const dec = expenses.filter(entry => entry.type === 'Expenditure' && entry.month === "12");
+
+  const totaljan = jan.reduce((sum, entry) => sum + entry.amount, 0);
+  const totalfeb = feb.reduce((sum, entry) => sum + entry.amount, 0);
+  const totalmar = mar.reduce((sum, entry) => sum + entry.amount, 0);
+  const totalapr = apr.reduce((sum, entry) => sum + entry.amount, 0);
+  const totalmay = may.reduce((sum, entry) => sum + entry.amount, 0);
+  const totaljun = jun.reduce((sum, entry) => sum + entry.amount, 0);
+  const totaljul = jul.reduce((sum, entry) => sum + entry.amount, 0);
+  const totalaug = aug.reduce((sum, entry) => sum + entry.amount, 0);
+  const totalsep = sep.reduce((sum, entry) => sum + entry.amount, 0);
+  const totaloct = oct.reduce((sum, entry) => sum + entry.amount, 0);
+  const totalnov = nov.reduce((sum, entry) => sum + entry.amount, 0);
+  const totaldec = dec.reduce((sum, entry) => sum + entry.amount, 0);
+
+
+  
+  const totalExpenditure1 = expenditureData.slice(0, -1).reduce((sum, entry) => sum + entry.amount, 0);
+
+  
+  const latestExpenditure = totalExpenditure-totalExpenditure1;
+
+  const incomeData = expenses.filter(entry => entry.type === 'Income');
+  const totalincome = incomeData.reduce((sum, entry) => sum + entry.amount, 0);
     
+
+
+  const taxData= [
+    {month:'Jan',taxes:totaljan},
+    {month:'Feb',taxes:totalfeb},
+    {month:'Mar',taxes:totalmar},
+    {month:'Apr',taxes:totalapr},
+    {month:'May',taxes:totalmay},
+    {month:'Jun',taxes:totaljun},
+    {month:'Jul',taxes:totaljul},
+    {month:'Aug',taxes:totalaug},
+    {month:'Sept',taxes:totalsep},
+    {month:'Oct',taxes:totaloct},
+    {month:'Nov',taxes:totalnov},
+    {month:'Dec',taxes:totaldec}
+  ]
+
+
+
     const Logout = () => {
         setauthenticated(false)
-        console.log("hi")
+        console.log("logout")
         localStorage.setItem("authenticated",false)
         navigate("/Signin");
-                }
+      }
+                // console.log(props.location.state)
   
   return (
     <Box sx={{ display:"flex" }}>
-         {bar ? <Box sx={{ width:{xs:"40%",sm:"40%",md:"20%"},height:"100vh",backgroundColor:{xs:"white",md:"#8EAC50"},ml:"2%",mt:"2%",mb:"0",mr:"2%",borderRadius:"30px",fontWeight:"bold" }}>
+         {bar ? <Box sx={{ width:{xs:"40%",sm:"40%",md:"20%"},height:"100%",backgroundColor:{xs:"white",md:"#8EAC50"},ml:"2%",mt:"2%",mb:"0",mr:"2%",borderRadius:"30px",fontWeight:"bold", }}>
 
             <Box sx={{ mb:"5%" }}>
                 <img src="https://storage.googleapis.com/pai-images/8a9673c9582b4cdca3073b09392a7ac0.jpeg" alt='client' style={{ borderRadius:"100%",width:"35%",marginTop:"5%"}}></img>
@@ -134,7 +210,7 @@ else {
            </Button>
 
            <Button id='button2' sx={{ color:{xs:"black",sm:"black",md:"white"},display:"flex",ml:"15%",fontFamily:"Calibri",fontSize:"13px",paddingRight:"30px",paddingLeft:"20px",mb:"10px"} }> 
-                <NavLink style={{ textDecoration:"none",color:{xs:"black",sm:"black",md:"white"},display:"flex"  }} to="/payment"><CalculateIcon sx={{ color:{xs:"black",sm:"black",md:"white"},mr:"15%" }}/> TaxCalculator</NavLink>
+                <NavLink style={{ textDecoration:"none",color:{xs:"black",sm:"black",md:"white"},display:"flex"  }} to="/calculator"><CalculateIcon sx={{ color:{xs:"black",sm:"black",md:"white"},mr:"15%" }}/> TaxCalculator</NavLink>
            </Button>
 
 
@@ -143,12 +219,16 @@ else {
            </Button>
 
            <Button id='button2' sx={{ color:{xs:"black",sm:"black",md:"white"},display:"flex",ml:"15%",fontFamily:"Calibri",fontSize:"13px",paddingRight:"30px",paddingLeft:"20px",mb:"10px"} }> 
+                <NavLink style={{ textDecoration:"none",color:{xs:"black",sm:"black",md:"white"},display:"flex" }} to="/paymenthistory"> <HistoryIcon sx={{ color:{xs:"black",sm:"black",md:"white"},mr:"15%" }}/> PayHistory</NavLink>
+           </Button>
+
+           <Button id='button2' sx={{ color:{xs:"black",sm:"black",md:"white"},display:"flex",ml:"15%",fontFamily:"Calibri",fontSize:"13px",paddingRight:"30px",paddingLeft:"20px",mb:"10px"} }> 
                 <NavLink style={{ textDecoration:"none",color:{xs:"black",sm:"black",md:"white"},display:"flex" }} to="/notification"> <NotificationsSharpIcon sx={{ color:{xs:"black",sm:"black",md:"white"},mr:"15%" }}/> Notifications</NavLink>
            </Button>
 
 
            <Button id='button2' sx={{ color:{xs:"black",sm:"black",md:"white"},display:"flex",ml:"15%",fontFamily:"Calibri",fontSize:"13px",paddingRight:"30px",paddingLeft:"18px",mb:"10px"} }> 
-                <NavLink style={{ textDecoration:"none",color:{xs:"black",sm:"black",md:"white"},display:"flex" }} to="/payment"> <QuestionMarkSharpIcon sx={{ color:{xs:"black",sm:"black",md:"white"},mr:"15%" }}/> Support</NavLink>
+                <NavLink style={{ textDecoration:"none",color:{xs:"black",sm:"black",md:"white"},display:"flex" }} to="/support"> <QuestionMarkSharpIcon sx={{ color:{xs:"black",sm:"black",md:"white"},mr:"15%" }}/> Support</NavLink>
            </Button>
 
            <Button id='button2' sx={{ color:{xs:"black",sm:"black",md:"white"},display:"flex",ml:"15%",fontFamily:"Calibri",fontSize:"13px",paddingRight:"30px",paddingLeft:"18px",mb:"10px"} }>
@@ -181,7 +261,7 @@ else {
             variant="h6"
             noWrap
             component="div"
-            sx={{ flexGrow: 1, display: { xs: 'none', sm: 'flex',fontFamily:"calibri",fontSize:"25px",letterSpacing:"2px",fontWeight:"bold" } }}
+            sx={{ flexGrow: 1, display: { xs: 'none', sm: 'none',md:"flex",fontFamily:"calibri",fontSize:"25px",letterSpacing:"2px",fontWeight:"bold" } }}
           >
             Analytic Overview
           </Typography>
@@ -206,28 +286,28 @@ else {
             <Box sx={{ display:"flex" }}>
                 <Card sx={{ width:"100%",ml:"2%",borderRadius:"15px",backgroundColor:"#D0F5BE",borderTopRightRadius:""  }} variant="outlined">
                   <Typography sx={{ fontFamily:"Roboto",fontWeight:"bold",fontSize:"35px"}}>
-                    15
+                    {dates}
                   </Typography>
                   <Typography sx={{ color:"green" }}>
-                      Taxes Delay
+                      Date
                   </Typography>
                 </Card>
 
                 <Card sx={{ width:"100%",ml:"2%",borderRadius:"15px",backgroundColor:"#99DBF5" }} variant="outlined">
                 <Typography sx={{ fontFamily:"Roboto",fontWeight:"bold",fontSize:"35px", }}>
-                    10
+                    {month}
                   </Typography>
                   <Typography sx={{ color:"blue" }}>
-                      Taxes Done
+                      Month
                   </Typography>
                 </Card>
 
                 <Card sx={{ width:"100%",ml:"2%",borderRadius:"15px",backgroundColor:"#FFD0D0" }} variant="outlined">
                 <Typography sx={{ fontFamily:"Roboto",fontWeight:"bold",fontSize:"35px" }}>
-                    15
+                    {year}
                 </Typography>
                 <Typography sx={{ color:"red" }}>
-                    Total Taxes
+                    Year
                 </Typography>
                 </Card>
 
@@ -252,28 +332,29 @@ else {
 
         <Card sx={{ width:"100%",ml:"2%",mt:"10px",borderRadius:"15px",backgroundColor:"#FFD0D0" }} variant="outlined">
                 <Typography sx={{ fontFamily:"Roboto",fontWeight:"bold",fontSize:"25px" }}>
-                    Pay tax urgently
+                    Expenses
                 </Typography>
-                <Typography sx={{ color:"red" }}>
-                  8:00 to 8:30 pm
-                </Typography>
+               
+          <Typography sx={{ color:"red" }}>Total Expense:{totalExpenditure}
+              </Typography>
+                
         </Card>
 
         <Card sx={{ width:"100%",ml:"2%",mt:"4%",borderRadius:"15px",backgroundColor:"#FFD0D0", }} variant="outlined">
                 <Typography sx={{ fontFamily:"Roboto",fontWeight:"bold",fontSize:"25px" }}>
-                    Pay tax urgently
+                    Expense
                 </Typography>
                 <Typography sx={{ color:"red" }}>
-                  8:00 to 8:30 pm
+                  latestExpense:{latestExpenditure}
                 </Typography>
         </Card>
 
         <Card sx={{ width:"100%",ml:"2%",borderRadius:"15px",mt:"4%",mb:"2%",backgroundColor:"#D0F5BE" }} variant="outlined">
                 <Typography sx={{ fontFamily:"Roboto",fontWeight:"bold",fontSize:"25px" }}>
-                    Tax has been paid
+                    Income
                 </Typography>
-                <Typography sx={{ color:"green" }}>
-                  8:00 pm Monday
+                <Typography>
+                  Total Income:{totalincome}
                 </Typography>
         </Card>
 
@@ -282,6 +363,7 @@ else {
 
 </Box>
 </Box>
+      
    
   )
 }};

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import "./Sigin.css"
+import "../style/Sigin.css"
 import axios from "axios"
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 function Signin() {
     // const [dum,setDum]=useState([])
@@ -77,7 +77,7 @@ function Signin() {
         if(res.data === "Succesfully Register"){
             setIsvalues(false)
         }else{
-            setIsvalue(true)
+            setIsvalues(true)
         }
         })
         .catch((err)=>{
@@ -115,10 +115,9 @@ function Signin() {
   return (
     <div className='con'>
     <div className="container right-panel-active">
-
 	<div className="container__form container--signup">
-		<form onSubmit={Postdata} className="form" id="form1">
-			<h2 className="form__title">Sign Up</h2>
+		<form onSubmit={Postdata} className="form" id="form1" style={{width:"100%",overflow:"auto",paddingTop:"120px", paddingBottom:"50px"}}>
+			<h2 className="form__title" ><NavLink to="/" style={{ textDecoration:"none",marginRight:"15px",fontFamily:"Roboto" }}>Back</NavLink>Sign Up</h2>
             <h3 className="form__title" style={{backgroundColor :isValues ?"red":"green",
             borderRadius:"5px",padding:"5px"
             }}>
@@ -135,7 +134,7 @@ function Signin() {
 
     <div className="container__form container--signin">
 		<form onSubmit={Postlogindata} className="form" id="form2">
-			<h2 className="form__title">Sign In</h2>
+			<h2 className="form__title"><NavLink to="/" style={{ textDecoration:"none",marginRight:"15px",fontFamily:"Roboto" }}>Back</NavLink>Sign In</h2>
 			<h3 className="form__title" style={{backgroundColor :isValue ?"red":"green",
             borderRadius:"5px",padding:"3px"
             }}>
@@ -145,6 +144,7 @@ function Signin() {
 			<input type="email" placeholder="Email" className="input" name="Email" value={login.Email} onChange={Handlelogininput} required/>
 			<input type="password" placeholder="Confirm Password" className="input" name="Password" value={login.Password} onChange={Handlelogininput} required/>
 			<input type="submit" className="btn input"/>
+            <NavLink to="/forget" style={{ textDecoration:"none"}}>Forget password...</NavLink>
 		</form>
 	</div>
 

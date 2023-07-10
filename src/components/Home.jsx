@@ -1,10 +1,9 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import "./Home.css"
+import "../style/Home.css"
 
 import { NavLink } from 'react-router-dom';
 
@@ -142,9 +141,9 @@ export default function Home() {
       <Typography sx={{fontFamily:"Roboto", fontSize:"45px"}}>With Our Encrypts</Typography>
       <Typography sx={{fontFamily:"Roboto", fontSize:"18px"}}>Grow Your investment without any risk</Typography>
 	
-     <Box style={{display:"flex", width:"30%", marginLeft:"35%",border:"2px solid black",height:"50px",borderRadius:"30px",marginTop:"25px"}}>
-			<input type="email" placeholder="Enter Your Email Address" className="input" name="email"  required />
-			<NavLink to="/Signin" style={{textDecoration:"none",marginRight:"5px",marginTop:"2px"}} className="Nave">SignUp</NavLink>
+     <Box sx={{display:"flex", width:"30%", ml:"35%",border:"2px solid black",height:"50px",borderRadius:"30px",marginTop:"25px"}}>
+			<input type="email" placeholder="Enter Your Email Address" className="input" name="email" required/>
+			<NavLink to="/Signin" style={{textDecoration:"none",marginRight:"5px",marginTop:'1px',marginBottom:'1px'}} className="Nave">SignUp</NavLink>
     </Box>
 
 

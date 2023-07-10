@@ -1,9 +1,11 @@
 import React, { useState,useEffect } from 'react'
-import card from "./card.png"
-import "./Home.css"
+import card from "../image/card.png"
+import "../style/Home.css"
 import { AccumulationChartComponent, AccumulationDataLabel, AccumulationSeriesCollectionDirective, AccumulationSeriesDirective, Inject, PieSeries,AccumulationLegend,AccumulationTooltip} from '@syncfusion/ej2-react-charts';
-import {  NavLink, Navigate } from "react-router-dom";
+import { Link, NavLink, Navigate } from "react-router-dom";
 import GridViewRoundedIcon from '@mui/icons-material/GridViewRounded';
+import HistoryIcon from '@mui/icons-material/History';
+import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import { useNavigate } from "react-router-dom";
 import QuestionMarkSharpIcon from '@mui/icons-material/QuestionMarkSharp';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -14,15 +16,15 @@ import axios from "axios"
 import PaymentsIcon from '@mui/icons-material/Payments';
 import LogoutSharpIcon from '@mui/icons-material/LogoutSharp';
 import CalculateIcon from '@mui/icons-material/Calculate';
-import { styled, alpha } from '@mui/material/styles';
 import CallMadeIcon from '@mui/icons-material/CallMade';
-import Piedata from './Piedata';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import CallReceivedIcon from '@mui/icons-material/CallReceived';
+import { registerLicense } from '@syncfusion/ej2-base';
 
+registerLicense('Ngo9BigBOggjHTQxAR8/V1NGaF5cXmVCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdgWXlceXRQR2hdUkR0WEs=');
 
 const Payments = (props) => {
 
@@ -34,12 +36,25 @@ const [authenticated, setauthenticated] = useState(null);
         }, []);
       
 const [name,setName] = useState([])
- axios.get('/login')
-.then((response) => {
-    setName(response.data)})
-.catch((error) => console.log(error))
+useEffect(() => {
+  axios
+    .get('/login')
+    .then((response) => {
+      setName(response.data);
+    })
+    .catch((error) => console.log('error', error));
+}, []);
 
-// console.log(taxData)
+
+const [history,setHistory] = useState([])
+useEffect(() => 
+{
+ axios.get("/payment").then((response)=>{
+  setHistory(response.data)
+})
+.catch(error => {
+  console.log("error"+error)})
+}, [])
 
 
 const navigate = useNavigate();
@@ -81,27 +96,52 @@ const year = (e)=>{
         setIsmonth(false)
     }
 }
+// const [datas,setDatas] = useState(
+//   {id:1, name:'Ford', color:'Red'},
+//   {id:2, name:'Ford', color:'Red'},
+// )
 
-// console.log(typeof(localStorage.getItem("authenticated")))
+// const open = (data)=>{navigate('/dashboard',{
+//   state:{
+//     data:datas
+//   }
+// })}
+
 if (localStorage.getItem("authenticated") === 'false') 
 {
-    console.log("hello")
     return <Navigate replace to="/Signin" />;
 } 
 
-else {
-        
 
+else {
     const Logout = () => {
         setauthenticated(false)
-        console.log("hi")
+        // console.log("hi")
         localStorage.setItem("authenticated",false)
         navigate("/Signin");
                 }
-  
+                const expenditureData = history.filter(entry => entry.type === 'Expenditure');
+                const totalExpenditure = expenditureData.reduce((sum, entry) => sum + entry.amount, 0);
+                
+                const totalExpenditure1 = expenditureData.slice(0, -1).reduce((sum, entry) => sum + entry.amount, 0);
+              
+                
+                const latestExpenditure = totalExpenditure-totalExpenditure1;
+              
+                const incomeData = history.filter(entry => entry.type === 'Income');
+                const totalincome = incomeData.reduce((sum, entry) => sum + entry.amount, 0);
+
+              const Piedata =[{ x: 'Tax', y: 0, text: 'Tax', fill: '#0073DC' },
+                { x: 'Expenses', y: totalExpenditure , text: 'Expenses', fill: '#0D98FF' },  
+                { x: 'Income', y: totalincome, text: 'Income', fill: '#0450C2' }]
   return (
     <Box sx={{ display:"flex",mb:"2%" }}>
        
+       {/* <Link to= '/dashboard'
+        state={{ data:datas }}
+       /> */}
+      {/* <button onClick={open}>hi</button> */}
+
        {bar ? <Box sx={{ width:{xs:"40%",sm:"40%",md:"20%"},height:"100vh",backgroundColor:{xs:"white",md:"#8EAC50"},ml:"2%",mt:"2%",mb:"0",mr:"2%",borderRadius:"30px",fontWeight:"bold" }}>
 
        <Box sx={{ mb:"5%" }}>
@@ -118,7 +158,7 @@ else {
            </Button>
 
            <Button id='button2' sx={{ color:{xs:"black",sm:"black",md:"white"},display:"flex",ml:"15%",fontFamily:"Calibri",fontSize:"13px",paddingRight:"30px",paddingLeft:"20px",mb:"10px"} }> 
-                <NavLink style={{ textDecoration:"none",color:{xs:"black",sm:"black",md:"white"},display:"flex"  }} to="/payment"><CalculateIcon sx={{ color:{xs:"black",sm:"black",md:"white"},mr:"15%" }}/> TaxCalculator</NavLink>
+                <NavLink style={{ textDecoration:"none",color:{xs:"black",sm:"black",md:"white"},display:"flex"  }} to="/calculator"><CalculateIcon sx={{ color:{xs:"black",sm:"black",md:"white"},mr:"15%" }}/> TaxCalculator</NavLink>
            </Button>
 
 
@@ -127,12 +167,16 @@ else {
            </Button>
 
            <Button id='button2' sx={{ color:{xs:"black",sm:"black",md:"white"},display:"flex",ml:"15%",fontFamily:"Calibri",fontSize:"13px",paddingRight:"30px",paddingLeft:"20px",mb:"10px"} }> 
+                <NavLink style={{ textDecoration:"none",color:{xs:"black",sm:"black",md:"white"},display:"flex" }} to="/paymenthistory"> <HistoryIcon sx={{ color:{xs:"black",sm:"black",md:"white"},mr:"15%" }}/> PayHistory</NavLink>
+           </Button>
+
+           <Button id='button2' sx={{ color:{xs:"black",sm:"black",md:"white"},display:"flex",ml:"15%",fontFamily:"Calibri",fontSize:"13px",paddingRight:"30px",paddingLeft:"20px",mb:"10px"} }> 
                 <NavLink style={{ textDecoration:"none",color:{xs:"black",sm:"black",md:"white"},display:"flex" }} to="/notification"> <NotificationsSharpIcon sx={{ color:{xs:"black",sm:"black",md:"white"},mr:"15%" }}/> Notifications</NavLink>
            </Button>
 
 
            <Button id='button2' sx={{ color:{xs:"black",sm:"black",md:"white"},display:"flex",ml:"15%",fontFamily:"Calibri",fontSize:"13px",paddingRight:"30px",paddingLeft:"18px",mb:"10px"} }> 
-                <NavLink style={{ textDecoration:"none",color:{xs:"black",sm:"black",md:"white"},display:"flex" }} to="/payment"> <QuestionMarkSharpIcon sx={{ color:{xs:"black",sm:"black",md:"white"},mr:"15%" }}/> Support</NavLink>
+                <NavLink style={{ textDecoration:"none",color:{xs:"black",sm:"black",md:"white"},display:"flex" }} to="/support"> <QuestionMarkSharpIcon sx={{ color:{xs:"black",sm:"black",md:"white"},mr:"15%" }}/> Support</NavLink>
            </Button>
 
            <Button id='button2' sx={{ color:{xs:"black",sm:"black",md:"white"},display:"flex",ml:"15%",fontFamily:"Calibri",fontSize:"13px",paddingRight:"30px",paddingLeft:"18px",mb:"10px"} }>
@@ -158,7 +202,7 @@ else {
     <Box sx={{ width: bar ? {xs:"60%",sm:"60%",md:"80%"} : "100%" ,height:"90vh",backgroundColor:"white",ml:"2%",mt:"2%",mb:"0",mr:"2%",borderRadius:"30px",fontWeight:"bold"}}>
 
        
-    <Typography sx={{ fontFamily:"calibri",fontSize:"28px",fontWeight:"bold",display:"flex",justifyContent:"flex-start",alignItems:"center" }}><ChevronLeftIcon/>Payment
+    <Typography sx={{ fontFamily:"calibri",fontSize:"28px",fontWeight:"bold",display:"flex",justifyContent:"flex-start",alignItems:"center" }}><ChevronLeftIcon/>PayHistory
     </Typography>
 
 
@@ -186,100 +230,18 @@ else {
 
             { ismonth ?
             <Box sx={{ height:"250px",width:"100%",border:"1px solid white",overflow:"auto"}}>
+            {history.map((value,index)=>{return(
+              <>
+              <React.Fragment key={index}>
               <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallMadeIcon sx={{ color:"green" }}/>Income</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
+                <Typography sx={{ display:"flex",justifyContent:"center" }}>{ value.type === "Income" ?<CallMadeIcon sx={{ color:"green" }}/>:<CallReceivedIcon sx={{ color:"red" }}/>}{value.type}</Typography>
+                <Typography>{value.category}</Typography>
+                <Typography>{value.date}/{value.month}/{value.year}</Typography>
+                <Typography><CurrencyRupeeIcon sx={{ fontSize:"15px" }} />{value.amount}</Typography>
               </Box>
-
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-
-
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
+              </React.Fragment>
+                </>
+            )})}
 
             </Box>:""}
 
@@ -289,56 +251,7 @@ else {
                 <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
                 <Typography>Salary</Typography>
                 <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
+                <Typography><CurrencyRupeeIcon sx={{ fontSize:"15px" }} />2000</Typography>
               </Box>
 
             </Box>:""}
@@ -350,54 +263,8 @@ else {
                 <Typography sx={{ display:"flex",justifyContent:"center" }}><CallMadeIcon sx={{ color:"green" }}/>Income</Typography>
                 <Typography>Salary</Typography>
                 <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
+                <Typography><CurrencyRupeeIcon sx={{ fontSize:"15px" }} />2000</Typography>
               </Box>
-
-              
-
-              
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-
-              <Box sx={{ display:"flex", justifyContent:"space-around" }}>
-                <Typography sx={{ display:"flex",justifyContent:"center" }}><CallReceivedIcon sx={{ color:"red" }}/>Tax</Typography>
-                <Typography>Salary</Typography>
-                <Typography>15 March 2023</Typography>
-                <Typography>$2000</Typography>
-              </Box>
-              
 
             </Box>:""}
 

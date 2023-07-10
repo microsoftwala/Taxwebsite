@@ -1,4 +1,24 @@
 import React from 'react'
+import axios from 'axios'
+
+
+const taxes=0
+const taxesf=0
+const taxesm=0
+const taxesa=0
+const taxesma=0
+const taxesju=0
+const taxesjul=0
+const taxesau=0
+const taxessep=0
+const taxesoct=0
+const taxesnov=0
+const taxesdec=0
+
+
+
+
+
 
 export const taxData= [
     {month:'Jan',taxes:23},
